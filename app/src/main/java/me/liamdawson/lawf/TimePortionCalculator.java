@@ -19,13 +19,21 @@ public class TimePortionCalculator {
     }
 
     public float getHourPortion(boolean halfDay) {
+        return getHours(halfDay) / (TimeUnit.DAYS.toHours(1) / (halfDay ? 2 : 1));
+    }
+
+    private float getHours(boolean halfDay) {
         return mTime.get(halfDay ? GregorianCalendar.HOUR : GregorianCalendar.HOUR_OF_DAY) +
-                mTime.get(GregorianCalendar.MINUTE) / TimeUnit.HOURS.toMinutes(1);
+                getMinutePortion();
     }
 
     public float getMinutePortion() {
+        return getMinutes() / TimeUnit.HOURS.toMinutes(1);
+    }
+
+    private float getMinutes() {
         return mTime.get(GregorianCalendar.MINUTE) +
-                mTime.get(GregorianCalendar.SECOND) / TimeUnit.MINUTES.toSeconds(1);
+                getSecondPortion(false);
     }
 
     public float getSecondPortion() {
@@ -33,6 +41,10 @@ public class TimePortionCalculator {
     }
 
     public float getSecondPortion(boolean includeMillis) {
+        return getSeconds(includeMillis) / TimeUnit.MINUTES.toSeconds(1);
+    }
+
+    private float getSeconds(boolean includeMillis) {
         float portion = mTime.get(GregorianCalendar.SECOND);
         if(includeMillis) portion += mTime.get(GregorianCalendar.MILLISECOND) / TimeUnit.SECONDS.toMillis(1);
         return portion;
