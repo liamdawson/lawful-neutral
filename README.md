@@ -5,4 +5,3 @@ Watchface for Liam's personal use.
 
 * Watchface preview
 * Only use whole increments in ambient mode (at least for minutes)
-* Some level of 'animation'

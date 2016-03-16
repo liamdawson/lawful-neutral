@@ -38,10 +38,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class LAWF extends CanvasWatchFaceService {
     /**
-     * Update rate in milliseconds for interactive mode. We update once a second to advance the
-     * second hand.
+     * Update rate in milliseconds for interactive mode. We update 5 times a second to advance the
+     * second arc.
      */
-    private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.SECONDS.toMillis(1);
+    private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.SECONDS.toMillis(1) / 5;
 
     /**
      * Handler message id for updating the time periodically in interactive mode.

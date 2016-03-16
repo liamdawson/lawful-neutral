@@ -1,5 +1,8 @@
 package me.liamdawson.lawf;
 
+import android.util.Log;
+
+import java.io.Console;
 import java.util.GregorianCalendar;
 import java.util.concurrent.TimeUnit;
 
@@ -33,20 +36,16 @@ public class TimePortionCalculator {
 
     private float getMinutes() {
         return mTime.get(GregorianCalendar.MINUTE) +
-                getSecondPortion(false);
+                getSecondPortion();
     }
 
     public float getSecondPortion() {
-        return getSecondPortion(false);
+        return getSeconds() / TimeUnit.MINUTES.toSeconds(1);
     }
 
-    public float getSecondPortion(boolean includeMillis) {
-        return getSeconds(includeMillis) / TimeUnit.MINUTES.toSeconds(1);
-    }
-
-    private float getSeconds(boolean includeMillis) {
+    private float getSeconds() {
         float portion = mTime.get(GregorianCalendar.SECOND);
-        if(includeMillis) portion += mTime.get(GregorianCalendar.MILLISECOND) / TimeUnit.SECONDS.toMillis(1);
+        portion += (mTime.get(GregorianCalendar.MILLISECOND) / (float)TimeUnit.SECONDS.toMillis(1));
         return portion;
     }
 
