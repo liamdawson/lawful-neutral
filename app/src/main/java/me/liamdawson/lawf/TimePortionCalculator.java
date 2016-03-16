@@ -31,12 +31,16 @@ public class TimePortionCalculator {
     }
 
     public float getMinutePortion() {
-        return getMinutes() / TimeUnit.HOURS.toMinutes(1);
+        return getMinutePortion(false);
     }
 
-    private float getMinutes() {
+    public float getMinutePortion(boolean wholeOnly) {
+        return getMinutes(wholeOnly) / TimeUnit.HOURS.toMinutes(1);
+    }
+
+    private float getMinutes(boolean wholeOnly) {
         return mTime.get(GregorianCalendar.MINUTE) +
-                getSecondPortion();
+                (wholeOnly ? 0 : getSecondPortion());
     }
 
     public float getSecondPortion() {

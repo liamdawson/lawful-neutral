@@ -179,7 +179,7 @@ public class LAWF extends CanvasWatchFaceService {
             // Draw brighter arcs to indicate portion of time passed
 
             canvas.drawArc(hourBounds, 180, 180 * timePortionCalculator.getHourPortion(), false, paintCalculator.getHourHandPaint());
-            canvas.drawArc(minuteBounds, 180, 180 * timePortionCalculator.getMinutePortion(), false, paintCalculator.getMinuteHandPaint());
+            canvas.drawArc(minuteBounds, 180, 180 * timePortionCalculator.getMinutePortion(ambientMode), false, paintCalculator.getMinuteHandPaint());
             if(!ambientMode) {
                 canvas.drawArc(secondBounds, 180, 180 * timePortionCalculator.getSecondPortion(), false, paintCalculator.getSecondHandPaint());
             }
