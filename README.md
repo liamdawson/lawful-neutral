@@ -8,3 +8,4 @@ MIT licenced.
 ## TODO:
 
 * Investigate interactivity
+* Travis CI
