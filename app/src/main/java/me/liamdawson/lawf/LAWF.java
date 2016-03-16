@@ -151,16 +151,18 @@ public class LAWF extends CanvasWatchFaceService {
             float centerY = bounds.height() / 2f;
             float radius = Math.min(centerX, centerY);
 
+            // Time elements
             time = new GregorianCalendar();
             Date timeForString = time.getTime();
 
-
             TimePortionCalculator timePortionCalculator = new TimePortionCalculator(time);
 
+            // Bounding boxes for time arcs
             RectF hourBounds = new RectF(centerX - 0.75f*radius, centerY - 0.75f*radius, centerX + 0.75f*radius, centerY + 0.75f*radius);
             RectF minuteBounds = new RectF(centerX - 0.65f*radius, centerY - 0.65f*radius, centerX + 0.65f*radius, centerY + 0.65f*radius);
             RectF secondBounds = new RectF(centerX - 0.55f*radius, centerY - 0.55f*radius, centerX + 0.55f*radius, centerY + 0.55f*radius);
 
+            // Show the 'reflected' arcs beneath if not in ambient mode
             float arcStart = ambientMode ? 180 : 0;
             float arcAdjustment = ambientMode ? 0 : 180;
 
@@ -168,25 +170,39 @@ public class LAWF extends CanvasWatchFaceService {
 
             canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), paintCalculator.getBackgroundPaint());
 
-
-
             canvas.drawArc(hourBounds, arcStart, arcAdjustment + 180 * timePortionCalculator.getHourPortion(), false, paintCalculator.getHourHandPaint());
             canvas.drawArc(minuteBounds, arcStart, arcAdjustment + 180 * timePortionCalculator.getMinutePortion(), false, paintCalculator.getMinuteHandPaint());
             if(!ambientMode) {
                 canvas.drawArc(secondBounds, arcStart, arcAdjustment + 180 * timePortionCalculator.getSecondPortion(), false, paintCalculator.getSecondHandPaint());
             }
 
+            // Draw the lines to segment the second and minute arcs
             for(int i = 0; i <= 60; i++) {
 
                 float drawingDegrees = (3 * i + 270) % 360; // Angle for trigonometric functions
                 float drawingRadians = (drawingDegrees / 360) * (2*(float)Math.PI);
 
-                float hypotenuseLength = 2 * (centerX + centerY) / 2;
-
-                float xPos = (float)Math.sin(drawingRadians) * hypotenuseLength;
-                float yPos = (float)Math.cos(drawingRadians) * hypotenuseLength;
+                // Use 70% of the radius, otherwise segments the hour arc into 24m blocks
+                float xPos = (float)Math.sin(drawingRadians) * 0.7f*radius;
+                float yPos = (float)Math.cos(drawingRadians) * 0.7f*radius;
 
                 canvas.drawLine(centerX, centerY, centerX + xPos, centerY - yPos, (i % 5 == 0) ? paintCalculator.getMajorTickPaint() : paintCalculator.getMinorTickPaint());
+            }
+
+            // Draw the lines to segment the hour arc into half-hours
+            for(int i = 0; i <= 48; i++) {
+
+                float drawingDegrees = (3.75f * i + 90) % 360; // Angle for trigonometric functions
+                float drawingRadians = (drawingDegrees / 360) * (2*(float)Math.PI);
+
+                // Calculate the points of the line:
+                // use 70% -> 80% of the radius to bisect the hour arc each time
+                float startingX = (float)Math.sin(drawingRadians) * 0.7f*radius;
+                float endingX = (float)Math.sin(drawingRadians) * 0.8f*radius;
+                float startingY = (float)Math.cos(drawingRadians) * 0.7f*radius;
+                float endingY = (float)Math.cos(drawingRadians) * 0.8f*radius;
+
+                canvas.drawLine(centerX + startingX, centerY + startingY, centerX + endingX, centerY + endingY, (i % 2 == 0) ? paintCalculator.getMajorTickPaint() : paintCalculator.getMinorTickPaint());
             }
 
             if(!ambientMode) {
