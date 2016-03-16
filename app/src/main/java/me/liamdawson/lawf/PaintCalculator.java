@@ -7,7 +7,8 @@ import android.graphics.Paint;
  * Handles the paints for watch components
  */
 public class PaintCalculator {
-    // Colour scheme: https://color.adobe.com/warm-color-theme-7755835/?showPublished=true
+    // Colour scheme adapted from:
+    // https://color.adobe.com/Midnight-Blue-Monochromatic-color-theme-6782714/
 
     private boolean ambientMode;
     private boolean lowBitAmbientMode;
@@ -38,12 +39,12 @@ public class PaintCalculator {
         lowBitAmbientMode = lowBitAmbient;
         shouldAntiAlias = !(lowBitAmbientMode && ambientMode);
 
-        hourHandColor = ambientMode ? Color.WHITE : Color.rgb(241, 180, 90);
-        minuteHandColor = ambientMode ? Color.WHITE : Color.rgb(243, 135, 39);
-        secondHandColor = Color.rgb(215, 79, 21);
-        backgroundColor = ambientMode ? Color.BLACK : Color.rgb(115, 42, 27);
+        hourHandColor = ambientMode ? Color.WHITE : Color.rgb(0, 74, 144);
+        minuteHandColor = ambientMode ? Color.WHITE : Color.rgb(0, 97, 191);
+        secondHandColor = Color.rgb(0, 117, 229);
+        backgroundColor = ambientMode ? Color.BLACK : Color.rgb(0, 33, 64);
         demarcationColor = backgroundColor;
-        textColor = ambientMode ? Color.WHITE : Color.rgb(217, 174, 138);
+        textColor = ambientMode ? Color.WHITE : Color.rgb(0, 130, 255);
 
         hourHandMain = arcPaint(hourHandColor, 255, 8);
         minuteHandMain = arcPaint(minuteHandColor, 255, 8);
@@ -54,7 +55,7 @@ public class PaintCalculator {
         secondHandEcho = arcPaint(secondHandColor, 64, 4);
 
         textMain = textPaint(textColor, 255, 24);
-        textSecondary = textPaint(textColor, 128, 16);
+        textSecondary = textPaint(textColor, 192, 16);
 
         demarcationMain = arcPaint(demarcationColor, 255, 3);
         demarcationSecondary = arcPaint(demarcationColor, 128, 1);
