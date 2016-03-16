@@ -1,7 +1,9 @@
 # LAWFul Neutral
 Watchface for Liam's personal use.
 
+MIT licenced.
+
 ## TODO:
 
 * Watchface preview
-* Update colour scheme
+* Investigate interactivity
