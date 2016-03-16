@@ -163,17 +163,25 @@ public class LAWF extends CanvasWatchFaceService {
             RectF secondBounds = new RectF(centerX - 0.55f*radius, centerY - 0.55f*radius, centerX + 0.55f*radius, centerY + 0.55f*radius);
 
             // Show the 'reflected' arcs beneath if not in ambient mode
-            float arcStart = ambientMode ? 180 : 0;
-            float arcAdjustment = ambientMode ? 0 : 180;
+            float arcExtent = ambientMode ? 180 : 360;
 
             // Start drawing
 
             canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), paintCalculator.getBackgroundPaint());
 
-            canvas.drawArc(hourBounds, arcStart, arcAdjustment + 180 * timePortionCalculator.getHourPortion(), false, paintCalculator.getHourHandPaint());
-            canvas.drawArc(minuteBounds, arcStart, arcAdjustment + 180 * timePortionCalculator.getMinutePortion(), false, paintCalculator.getMinuteHandPaint());
+            // Draw 'echo' arcs first
+            canvas.drawArc(hourBounds, 180, arcExtent, false, paintCalculator.getHourEchoPaint());
+            canvas.drawArc(minuteBounds, 180, arcExtent, false, paintCalculator.getMinuteEchoPaint());
             if(!ambientMode) {
-                canvas.drawArc(secondBounds, arcStart, arcAdjustment + 180 * timePortionCalculator.getSecondPortion(), false, paintCalculator.getSecondHandPaint());
+                canvas.drawArc(secondBounds, 180, arcExtent, false, paintCalculator.getSecondEchoPaint());
+            }
+
+            // Draw brighter arcs to indicate portion of time passed
+
+            canvas.drawArc(hourBounds, 180, 180 * timePortionCalculator.getHourPortion(), false, paintCalculator.getHourHandPaint());
+            canvas.drawArc(minuteBounds, 180, 180 * timePortionCalculator.getMinutePortion(), false, paintCalculator.getMinuteHandPaint());
+            if(!ambientMode) {
+                canvas.drawArc(secondBounds, 180, 180 * timePortionCalculator.getSecondPortion(), false, paintCalculator.getSecondHandPaint());
             }
 
             // Draw the lines to segment the second and minute arcs
@@ -204,11 +212,6 @@ public class LAWF extends CanvasWatchFaceService {
 
                 canvas.drawLine(centerX + startingX, centerY + startingY, centerX + endingX, centerY + endingY, (i % 2 == 0) ? paintCalculator.getMajorTickPaint() : paintCalculator.getMinorTickPaint());
             }
-
-            if(!ambientMode) {
-                canvas.drawRect(0, centerY, centerX * 2, centerY * 2, paintCalculator.getTranslucentBackgroundPaint());
-            }
-
 
             canvas.drawText(DateFormat.getTimeInstance(DateFormat.SHORT).format(timeForString),
                     centerX,

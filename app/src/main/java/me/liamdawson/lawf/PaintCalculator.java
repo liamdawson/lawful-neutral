@@ -9,129 +9,132 @@ import android.graphics.Paint;
 public class PaintCalculator {
     // Colour scheme: https://color.adobe.com/warm-color-theme-7755835/?showPublished=true
 
-    private boolean mAmbient;
-    private boolean mLowBitAmbient;
+    private boolean ambientMode;
+    private boolean lowBitAmbientMode;
+    private boolean shouldAntiAlias;
 
+    int hourHandColor,
+            minuteHandColor,
+            secondHandColor,
+            backgroundColor,
+            demarcationColor,
+            textColor;
+
+    Paint hourHandMain,
+            minuteHandMain,
+            secondHandMain,
+            hourHandEcho,
+            minuteHandEcho,
+            secondHandEcho,
+            textMain,
+            textSecondary,
+            demarcationMain,
+            demarcationSecondary,
+            background;
+
+    // Prepare everything beforehand, so paints are only calculated when constructed
     public PaintCalculator(boolean isAmbient, boolean lowBitAmbient) {
-        mAmbient = isAmbient;
-        mLowBitAmbient = lowBitAmbient;
+        ambientMode = isAmbient;
+        lowBitAmbientMode = lowBitAmbient;
+        shouldAntiAlias = !(lowBitAmbientMode && ambientMode);
+
+        hourHandColor = ambientMode ? Color.WHITE : Color.rgb(241, 180, 90);
+        minuteHandColor = ambientMode ? Color.WHITE : Color.rgb(243, 135, 39);
+        secondHandColor = Color.rgb(215, 79, 21);
+        backgroundColor = ambientMode ? Color.BLACK : Color.rgb(115, 42, 27);
+        demarcationColor = backgroundColor;
+        textColor = ambientMode ? Color.WHITE : Color.rgb(217, 174, 138);
+
+        hourHandMain = arcPaint(hourHandColor, 255, 8);
+        minuteHandMain = arcPaint(minuteHandColor, 255, 8);
+        secondHandMain = arcPaint(secondHandColor, 255, 4);
+
+        hourHandEcho = arcPaint(hourHandColor, 64, 8);
+        minuteHandEcho = arcPaint(minuteHandColor, 64, 8);
+        secondHandEcho = arcPaint(secondHandColor, 64, 4);
+
+        textMain = textPaint(textColor, 255, 24);
+        textSecondary = textPaint(textColor, 128, 16);
+
+        demarcationMain = arcPaint(demarcationColor, 255, 3);
+        demarcationSecondary = arcPaint(demarcationColor, 128, 1);
+
+        background = backgroundPaint(backgroundColor);
+    }
+
+    private Paint arcPaint(int color, int alpha, int thickness) {
+        Paint p = new Paint();
+        p.setColor(color);
+        p.setAlpha(alpha);
+        p.setStrokeWidth(thickness);
+        p.setAntiAlias(shouldAntiAlias);
+        p.setStyle(Paint.Style.STROKE);
+
+        return p;
+    }
+
+    private Paint textPaint(int color, int alpha, int size) {
+        Paint p = new Paint();
+        p.setColor(color);
+        p.setAlpha(ambientMode ? 255 : alpha);
+        p.setAntiAlias(shouldAntiAlias);
+        p.setTextAlign(Paint.Align.CENTER);
+        p.setTextSize(size);
+
+        return p;
+    }
+
+    private Paint backgroundPaint(int color) {
+        Paint p = new Paint();
+        p.setColor(color);
+        p.setAlpha(255);
+        p.setStyle(Paint.Style.FILL);
+
+        return p;
     }
 
     public Paint getHourHandPaint() {
-        Paint p = new Paint();
-
-        p.setStyle(Paint.Style.STROKE);
-        p.setStrokeWidth(8);
-        p.setAntiAlias(!(mLowBitAmbient && mAmbient));
-        p.setColor(mAmbient ? Color.WHITE : Color.argb(255, 241, 180, 90));
-
-        return p;
+        return hourHandMain;
     }
 
     public Paint getMinuteHandPaint() {
-        Paint p = new Paint();
-
-        p.setStyle(Paint.Style.STROKE);
-        p.setStrokeWidth(8);
-        p.setAntiAlias(!(mLowBitAmbient && mAmbient));
-        p.setColor(mAmbient ? Color.WHITE : Color.argb(255, 243, 135, 39));
-
-        return p;
+        return minuteHandMain;
     }
 
     public Paint getSecondHandPaint() {
-        Paint p = new Paint();
-
-        p.setStyle(Paint.Style.STROKE);
-        p.setStrokeWidth(4);
-        p.setAntiAlias(!(mLowBitAmbient && mAmbient));
-        p.setColor(mAmbient ? Color.WHITE : Color.argb(255, 215, 79, 21));
-
-        return p;
+        return secondHandMain;
     }
 
-    private int getBackgroundColorR() {
-        return mAmbient ? 0 : 115;
+    public Paint getHourEchoPaint() {
+        return hourHandEcho;
     }
 
-    private int getBackgroundColorG() {
-        return mAmbient ? 0 : 42;
+    public Paint getMinuteEchoPaint() {
+        return minuteHandEcho;
     }
 
-    private int getBackgroundColorB() {
-        return mAmbient ? 0 : 27;
-    }
-
-    private int getTextColorR() {
-        return mAmbient ? 255 : 217;
-    }
-
-    private int getTextColorG() {
-        return mAmbient ? 255 : 174;
-    }
-
-    private int getTextColorB() {
-        return mAmbient ? 255 : 138;
-    }
-
-    public int getBackgroundColor() {
-        return Color.argb(255, getBackgroundColorR(), getBackgroundColorG(), getBackgroundColorB());
+    public Paint getSecondEchoPaint() {
+        return secondHandEcho;
     }
 
     public Paint getBackgroundPaint() {
-        Paint p = new Paint();
-
-        p.setStyle(Paint.Style.FILL);
-        p.setAntiAlias(!(mLowBitAmbient && mAmbient));
-        p.setColor(getBackgroundColor());
-
-        return p;
-    }
-
-    public Paint getTranslucentBackgroundPaint() {
-        Paint p = new Paint();
-
-        p.setStyle(Paint.Style.FILL);
-        p.setAntiAlias(!(mLowBitAmbient && mAmbient));
-        p.setColor(Color.argb(224, getBackgroundColorR(), getBackgroundColorG(), getBackgroundColorB()));
-
-        return p;
+        return background;
     }
 
     public Paint getMinorTickPaint() {
-        Paint p = new Paint();
-
-        p.setStyle(Paint.Style.STROKE);
-        p.setColor(getBackgroundColor());
-        p.setAntiAlias(!(mLowBitAmbient && mAmbient));
-        p.setStrokeWidth(1);
-
-        return p;
+        return demarcationSecondary;
     }
 
     public Paint getMajorTickPaint() {
-        Paint p = getMinorTickPaint();
-        p.setStrokeWidth(2);
-
-        return p;
+        return demarcationMain;
     }
 
     public Paint getTextPaint() {
-        Paint p = new Paint();
-        p.setColor(Color.argb(255, getTextColorR(), getTextColorG(), getTextColorB()));
-        p.setAntiAlias(!(mLowBitAmbient && mAmbient));
-        p.setTextAlign(Paint.Align.CENTER);
-        p.setTextSize(24);
-
-        return p;
+        return textMain;
     }
 
     public Paint getSecondaryTextPaint() {
-        Paint p = getTextPaint();
-        p.setTextSize(16);
-        p.setColor(Color.argb(mAmbient ? 255 : 128, getTextColorR(), getTextColorG(), getTextColorB()));
-
-        return p;
+        return textSecondary;
     }
 
 }
