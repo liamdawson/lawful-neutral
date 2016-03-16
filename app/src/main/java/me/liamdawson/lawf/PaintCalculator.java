@@ -21,7 +21,7 @@ public class PaintCalculator {
         Paint p = new Paint();
 
         p.setStyle(Paint.Style.STROKE);
-        p.setStrokeWidth(6);
+        p.setStrokeWidth(8);
         p.setAntiAlias(!(mLowBitAmbient && mAmbient));
         p.setColor(mAmbient ? Color.WHITE : Color.argb(255, 241, 180, 90));
 
@@ -32,7 +32,7 @@ public class PaintCalculator {
         Paint p = new Paint();
 
         p.setStyle(Paint.Style.STROKE);
-        p.setStrokeWidth(6);
+        p.setStrokeWidth(8);
         p.setAntiAlias(!(mLowBitAmbient && mAmbient));
         p.setColor(mAmbient ? Color.WHITE : Color.argb(255, 243, 135, 39));
 
@@ -43,7 +43,7 @@ public class PaintCalculator {
         Paint p = new Paint();
 
         p.setStyle(Paint.Style.STROKE);
-        p.setStrokeWidth(6);
+        p.setStrokeWidth(4);
         p.setAntiAlias(!(mLowBitAmbient && mAmbient));
         p.setColor(mAmbient ? Color.WHITE : Color.argb(255, 215, 79, 21));
 

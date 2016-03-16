@@ -16,13 +16,7 @@
 
 package me.liamdawson.lawf;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.res.Resources;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Bundle;
@@ -30,15 +24,12 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
-import android.text.format.Time;
 import android.view.SurfaceHolder;
 
 import java.lang.ref.WeakReference;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -88,6 +79,7 @@ public class LAWF extends CanvasWatchFaceService {
         boolean ambientMode;
         boolean lowBitAmbient;
         GregorianCalendar time;
+        PaintCalculator paintCalculator;
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -99,6 +91,8 @@ public class LAWF extends CanvasWatchFaceService {
                     .setShowSystemUiTime(false)
                     .setAcceptsTapEvents(true)
                     .build());
+
+            paintCalculator = new PaintCalculator(ambientMode, lowBitAmbient);
         }
 
         @Override
@@ -111,6 +105,8 @@ public class LAWF extends CanvasWatchFaceService {
         public void onPropertiesChanged(Bundle properties) {
             super.onPropertiesChanged(properties);
             lowBitAmbient = properties.getBoolean(PROPERTY_LOW_BIT_AMBIENT, false);
+
+            paintCalculator = new PaintCalculator(ambientMode, lowBitAmbient);
         }
 
         @Override
@@ -124,6 +120,7 @@ public class LAWF extends CanvasWatchFaceService {
             super.onAmbientModeChanged(inAmbientMode);
             if (ambientMode != inAmbientMode) {
                 ambientMode = inAmbientMode;
+                paintCalculator = new PaintCalculator(ambientMode, lowBitAmbient);
                 invalidate();
             }
 
@@ -148,31 +145,35 @@ public class LAWF extends CanvasWatchFaceService {
 
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
+
+            // Relatively constant, but used repeatedly
             float centerX = bounds.width() / 2f;
             float centerY = bounds.height() / 2f;
-            boolean isAmbient = isInAmbientMode();
-            GregorianCalendar gregorianTime = new GregorianCalendar();
-            Date time = gregorianTime.getTime();
-            TimePortionCalculator timePortionCalculator = new TimePortionCalculator(gregorianTime);
-            PaintCalculator paintCalc = new PaintCalculator(isAmbient, ambientMode);
+            float radius = Math.min(centerX, centerY);
 
-            RectF hourBounds = new RectF(centerX - 0.75f*centerX, centerY - 0.75f*centerY, centerX + 0.75f*centerX, centerY + 0.75f*centerY);
-            RectF minuteBounds = new RectF(centerX - 0.65f*centerX, centerY - 0.65f*centerY, centerX + 0.65f*centerX, centerY + 0.65f*centerY);
-            RectF secondBounds = new RectF(centerX - 0.55f*centerX, centerY - 0.55f*centerY, centerX + 0.55f*centerX, centerY + 0.55f*centerY);
+            time = new GregorianCalendar();
+            Date timeForString = time.getTime();
 
-            if (isAmbient) {
-                canvas.drawColor(paintCalc.getBackgroundColor());
-            } else {
-                canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), paintCalc.getBackgroundPaint());
-            }
 
-            float arcStart = isAmbient ? 180 : 0;
-            float arcAdjustment = isAmbient ? 0 : 180;
+            TimePortionCalculator timePortionCalculator = new TimePortionCalculator(time);
 
-            canvas.drawArc(hourBounds, arcStart, arcAdjustment + 180 * timePortionCalculator.getHourPortion(), false, paintCalc.getHourHandPaint());
-            canvas.drawArc(minuteBounds, arcStart, arcAdjustment + 180 * timePortionCalculator.getMinutePortion(), false, paintCalc.getMinuteHandPaint());
-            if(!isAmbient) {
-                canvas.drawArc(secondBounds, arcStart, arcAdjustment + 180 * timePortionCalculator.getSecondPortion(), false, paintCalc.getSecondHandPaint());
+            RectF hourBounds = new RectF(centerX - 0.75f*radius, centerY - 0.75f*radius, centerX + 0.75f*radius, centerY + 0.75f*radius);
+            RectF minuteBounds = new RectF(centerX - 0.65f*radius, centerY - 0.65f*radius, centerX + 0.65f*radius, centerY + 0.65f*radius);
+            RectF secondBounds = new RectF(centerX - 0.55f*radius, centerY - 0.55f*radius, centerX + 0.55f*radius, centerY + 0.55f*radius);
+
+            float arcStart = ambientMode ? 180 : 0;
+            float arcAdjustment = ambientMode ? 0 : 180;
+
+            // Start drawing
+
+            canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), paintCalculator.getBackgroundPaint());
+
+
+
+            canvas.drawArc(hourBounds, arcStart, arcAdjustment + 180 * timePortionCalculator.getHourPortion(), false, paintCalculator.getHourHandPaint());
+            canvas.drawArc(minuteBounds, arcStart, arcAdjustment + 180 * timePortionCalculator.getMinutePortion(), false, paintCalculator.getMinuteHandPaint());
+            if(!ambientMode) {
+                canvas.drawArc(secondBounds, arcStart, arcAdjustment + 180 * timePortionCalculator.getSecondPortion(), false, paintCalculator.getSecondHandPaint());
             }
 
             for(int i = 0; i <= 60; i++) {
@@ -185,24 +186,24 @@ public class LAWF extends CanvasWatchFaceService {
                 float xPos = (float)Math.sin(drawingRadians) * hypotenuseLength;
                 float yPos = (float)Math.cos(drawingRadians) * hypotenuseLength;
 
-                canvas.drawLine(centerX, centerY, centerX + xPos, centerY - yPos, (i % 5 == 0) ? paintCalc.getMajorTickPaint() : paintCalc.getMinorTickPaint());
+                canvas.drawLine(centerX, centerY, centerX + xPos, centerY - yPos, (i % 5 == 0) ? paintCalculator.getMajorTickPaint() : paintCalculator.getMinorTickPaint());
             }
 
-            if(!isAmbient) {
-                canvas.drawRect(0, centerY, centerX * 2, centerY * 2, paintCalc.getTranslucentBackgroundPaint());
+            if(!ambientMode) {
+                canvas.drawRect(0, centerY, centerX * 2, centerY * 2, paintCalculator.getTranslucentBackgroundPaint());
             }
 
 
-            canvas.drawText(DateFormat.getTimeInstance(DateFormat.SHORT).format(time),
+            canvas.drawText(DateFormat.getTimeInstance(DateFormat.SHORT).format(timeForString),
                     centerX,
                     centerY - 22,
-                    paintCalc.getTextPaint()
+                    paintCalculator.getTextPaint()
             );
 
-            canvas.drawText(DateFormat.getDateInstance(DateFormat.MEDIUM).format(time),
+            canvas.drawText(DateFormat.getDateInstance(DateFormat.MEDIUM).format(timeForString),
                     centerX,
                     centerY,
-                    paintCalc.getSecondaryTextPaint()
+                    paintCalculator.getSecondaryTextPaint()
             );
         }
 
