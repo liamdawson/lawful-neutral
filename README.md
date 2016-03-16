@@ -3,6 +3,6 @@ Watchface for Liam's personal use.
 
 ## TODO:
 
-* Set sane hour-hand increments
 * Watchface preview
-* Optimizations to reduce on-tick calculations
+* Only use whole increments in ambient mode (at least for minutes)
+* Some level of 'animation'
