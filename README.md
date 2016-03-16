@@ -5,5 +5,4 @@ MIT licenced.
 
 ## TODO:
 
-* Watchface preview
 * Investigate interactivity
